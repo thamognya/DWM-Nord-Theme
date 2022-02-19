@@ -19,8 +19,13 @@ ColorScheme: nord
 
 <hr>
 
+### .bashrc
+
+my bashrc is also located in this repo for some cool aliases
 
 ### Scripts
+
+located in `.local/bin`. They contain all scripts needed for this build.
 
 These are luke smith scripts specifically from the <a href="https://github.com/LukeSmithxyz/voidrice" target="_blank">voidrice repo</a>. These are not mine, but I have edited them.
 
