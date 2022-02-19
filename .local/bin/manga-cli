@@ -1,0 +1,205 @@
+#!/bin/bash
+search_url="https://mangakakalot.com/search/story/"
+base_url="https://mangakakalot.com/"
+image_dir="$HOME/torrent/manga/"
+
+# colors
+Green='\033[0;32m' 
+Yellow='\033[0;33m' 
+White='\033[0;37m' 
+
+mangaName="${@: -1}"
+prog="$0"
+
+
+help_text () {
+	while IFS= read -r line; do
+		printf "%s\n" "$line"
+	done <<-EOF
+  
+	Usage:
+	  $prog -l [<query>]
+	Options:
+	  -l lists manga 
+	EOF
+}
+
+search_manga() {
+
+    if [ -z $mangaName ] || [ "${mangaName}" == "${prog}" ] 
+    then
+        echo -n -e "${Yellow}Search manga: " 
+        read mangaName
+        mangaName="${mangaName// /_}"
+    else
+        mangaName="${mangaName//-/_}"
+    fi
+
+    # curl -s "$search_url$mangaName" | pup "div.story_item_right h3 a text{}"  
+
+    mapfile -t mangaNames < <(curl -s "$search_url$mangaName" | pup "div.story_item_right h3 a text{}")
+    declare -p mangaNames > /dev/null
+
+
+    # Manga Ids
+    mapfile -t mangaIds < <(curl -s "$search_url$mangaName" | pup "div.story_item_right h3 a attr{href}")
+    declare -p mangaIds > /dev/null
+
+
+    i=1
+    for each in "${mangaNames[@]}"
+    do
+        echo -e "${White}[$i]$each"
+        ((i=i+1))
+    done
+
+    echo -n -e "${Yellow}Enter Number: "
+    read mangaNumber
+
+    mangaNumber=$((mangaNumber-1))
+    name=$(echo ${mangaNames[$mangaNumber]})
+    name="${name// /_}"
+    name=${name//[^[:alnum:]]/}
+    mangaLink=$(echo ${mangaIds[$mangaNumber]})
+
+
+}
+
+select_chapter () {
+    echo -n -e "${Yellow}Enter chapter number: "
+    read chapterNumber
+
+    get_images "$mangaLink" "$chapterNumber"
+		
+
+}
+
+download_manga () {
+    search_manga
+
+    select_chapter
+
+    download_chapter
+
+    choose_next
+    clear
+}
+
+download_chapter() {
+
+    clear
+    echo -e "${Green}Getting data on the chapters...."
+    i=11
+
+    for each in "${chapterImages[@]}"
+    do
+        curl -s $each --output "$image_dir$name-$i.jpg" -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:95.0) Gecko/20100101 Firefox/95.0' -H 'Accept: image/avif,image/webp,*/*' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'Connection: keep-alive' -H 'Referer: https://readmanganato.com/' -H 'Sec-Fetch-Dest: image' -H 'Sec-Fetch-Mode: no-cors' -H 'Sec-Fetch-Site: cross-site' -H 'If-Modified-Since: Fri, 18 May 2018 10:55:14 GMT' -H 'If-None-Match: "5afeb112-19718"' -H 'Cache-Control: max-age=0'
+        ((i=i+1))
+    done
+
+    zip -q $image_dir$name-$chapterNumber.cbz $image_dir*.jpg
+
+    rm $image_dir/*.jpg
+    clear
+    zathura "$image_dir$name-$chapterNumber.cbz" &
+    choose_next
+
+}
+
+get_images() {
+    link=$1
+    chNumber=$2
+
+
+    if [ -f "$image_dir$name-$chNumber.cbz" ]; then
+        clear
+        echo -e "${Green}Manga file exists .cache, opening it..."
+        zathura "$image_dir$name-$chapterNumber.cbz" &
+        choose_next
+    fi
+
+
+
+
+    link="$mangaLink/chapter-$chNumber"
+
+    link2=${mangaLink##*/}
+    
+    if [[ $mangaLink == *"read-"* ]]; then
+        link="https://mangakakalot.com/chapter/$name/chapter_$chNumber"
+    elif [[ ! $link2 == *"manga-"* ]]; then
+        link="https://mangakakalot.com/chapter/$link2/chapter_$chNumber"
+    fi
+
+    mapfile -t chapterImages < <(curl -s "$link" | pup "div.container-chapter-reader img attr{src}")
+    # curl -s "$mangaLink/chapter-$mangaNumber" | pup "div.container-chapter-reader img attr{src}"
+    declare -p chapterImages > /dev/null
+
+
+
+
+
+    if [ ! -d "$image_dir" ]; then
+        mkdir ~/.cache/manga-cli
+    fi
+}
+
+
+list_manga() {
+    search_manga
+
+    output=$(curl -s $mangaLink | pup ".row-content-chapter .a-h a text{}")
+
+    echo -e "${White}$output"
+}
+
+choose_next() {
+    clear
+    echo -e "${White}next chapter ${Green}(n)"
+    echo -e "${White}quit ${Green}(q)"
+    echo -e "${White}previous chapter ${Green}(p)"
+
+    echo -n -e "${Yellow}Enter Option: "
+    read option
+
+    if [ "${option}" = "n" ]
+    then
+        chapterNumber=$((chapterNumber+1))
+        get_images "$mangaLink" "$chapterNumber" 
+        download_chapter
+
+    elif [ "${option}" = "p" ]; then
+        chapterNumber=$((chapterNumber-1))
+        get_images "$mangaLink" "$chapterNumber" 
+        download_chapter
+
+    elif [ "${option}" = "q" ]; then
+        exit -1
+
+    else 
+        choose_next
+
+    fi
+
+}
+
+# Flags
+while [ "$1" != "" ]; do
+    case $1 in
+    -l)
+        list_manga
+        exit -1
+        ;;
+    -h | --help)
+        
+        help_text
+        exit -1
+        ;;
+    *)
+        ;;
+    esac
+    shift # remove the current value for `$1` and use the next
+done
+
+download_manga
+
