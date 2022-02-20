@@ -10,9 +10,11 @@ fastfetch
 set -o vi
 export EDITOR='vi'
 export VISUAL='vi'
-
 export PS1="[>_<] \w \\$ \[$(tput sgr0)\]"
 export TERM=xterm-256color
+export EDITOR="nvim"
+export TERMINAL="st"
+export BROWSER="librewolf"
 alias neofetch='fastfetch'
 alias vim='nvim'
 alias vimcpp='exec $HOME/Documents/template/template-cpp.sh'
