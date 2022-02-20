@@ -1,0 +1,4 @@
+#!/bin/bash
+QUERY=$(printf "%s" "$*") && DOLLAR="$"
+PRICE_DECIMAL=$(curl -s rate.sx/$QUERY) && PRICE=$(printf "%.3f" $PRICE_DECIMAL)
+printf "%s\n" "$DOLLAR$PRICE"
