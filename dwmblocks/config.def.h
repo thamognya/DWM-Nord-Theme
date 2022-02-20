@@ -14,10 +14,10 @@ static const Block blocks[] = {
 	/* {"",	"sb-price eth Ethereum 🍸",	9000,	23}, */
 	/* {"",	"sb-price btc Bitcoin 💰",				9000,	21}, */
 //	{"",	"sb-torrent",	20,	7},
-	{"| btc: ",	"t-crypto 1btc",	60,	1},
-	{"eth: ",	"t-crypto 1eth",	60,	1},
-	 {"",	"sb-memory",	10,	14}, 
-	 {"",	"sb-cpu",		10,	18}, 
+//	{"| btc: ",	"t-crypto 1btc",	60,	1},
+//	{"eth: ",	"t-crypto 1eth",	60,	1},
+//	 {"",	"sb-memory",	10,	14}, 
+//	 {"",	"sb-cpu",		10,	18}, 
 	/* {"",	"sb-moonphase",	18000,	17}, */
 //	{"",	"sb-forecast",	18000,	5},
 //	{"",	"sb-mailbox",	180,	12},
@@ -25,7 +25,7 @@ static const Block blocks[] = {
 	{"",	"sb-volume",	0,	10},
 	{"",	"sb-battery",	5,	3},
 	{"",	"sb-clock",	60,	1},
-	{"",	"sb-internet",	5,	4},
+//	{"",	"sb-internet",	5,	4},
 };
 
 //Sets delimiter between status commands. NULL character ('\0') means no delimiter.

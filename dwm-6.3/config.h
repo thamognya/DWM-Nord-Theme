@@ -41,19 +41,38 @@ static const char *colors[][3]      = {
 	/*               fg         bg         border   */
 	[SchemeNorm] = { nord_white, nord_polar_darkest_blue, nord_polar_darkest_blue },
 	[SchemeSel]  = { nord_polar_darkest_blue, nord_frost_darker_light_blue,  nord_red },
+
+    [SchemeTabActive]  = { nord_polar_darkest_blue, nord_polar_darkest_blue,  nord_red },
+    [SchemeTabInactive]  = { nord_white, nord_polar_darkest_blue,  nord_polar_darkest_blue }
 };
 
 /* tagging */
 static const char *tags[] = { "", "", ">_", "", "", "" };
+
+/* grid of tags */
+#define DRAWCLASSICTAGS             1 << 0
+#define DRAWTAGGRID                 1 << 1
+
+#define SWITCHTAG_UP                1 << 0
+#define SWITCHTAG_DOWN              1 << 1
+#define SWITCHTAG_LEFT              1 << 2
+#define SWITCHTAG_RIGHT             1 << 3
+#define SWITCHTAG_TOGGLETAG         1 << 4
+#define SWITCHTAG_TAG               1 << 5
+#define SWITCHTAG_VIEW              1 << 6
+#define SWITCHTAG_TOGGLEVIEW        1 << 7
+
+static const unsigned int drawtagmask = DRAWTAGGRID; /* | DRAWCLASSICTAGS to show classic row of tags */
+static const int tagrows = 2;
 
 static const Rule rules[] = {
 	/* xprop(1):
 	 *	WM_CLASS(STRING) = instance, class
 	 *	WM_NAME(STRING) = title
 	 */
-	/* class      instance    title       tags mask     isfloating   monitor */
-	{ "Gimp",     NULL,       NULL,       0,            0,           -1 },
-	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+   /* class      instance    title       tags mask     iscentered   isfloating   monitor */
+   { "Gimp",     NULL,       NULL,       0,            0,           0,           -1 },
+   { "Firefox",  NULL,       NULL,       1 << 8,       0,           0,           -1 },
 };
 
 /* layout(s) */
@@ -64,6 +83,15 @@ static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen win
 
 #define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
 #include "vanitygaps.c"
+
+/* Bartabgroups properties */
+#define BARTAB_BORDERS 1       // 0 = off, 1 = on
+#define BARTAB_BOTTOMBORDER 1  // 0 = off, 1 = on
+#define BARTAB_TAGSINDICATOR 1 // 0 = off, 1 = on if >1 client/view tag, 2 = always on
+#define BARTAB_TAGSPX 5        // # pixels for tag grid boxes
+#define BARTAB_TAGSROWS 3      // # rows in tag grid (9 tags, e.g. 3x3)
+static void (*bartabmonfns[])(Monitor *) = { monocle /* , customlayoutfn */ };
+static void (*bartabfloatfns[])(Monitor *) = { NULL /* , customlayoutfn */ };
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
@@ -173,6 +201,20 @@ static Key keys[] = {
 	TAGKEYS(                        XK_5,                      4)
 	TAGKEYS(                        XK_6,                      5)
 	{ MODKEY|ShiftMask,             XK_c,      quit,           {0} },
+
+
+     { MODKEY|ControlMask,           XK_Up,     switchtag,      { .ui = SWITCHTAG_UP     | SWITCHTAG_VIEW } },
+     { MODKEY|ControlMask,           XK_Down,   switchtag,      { .ui = SWITCHTAG_DOWN   | SWITCHTAG_VIEW } },
+     { MODKEY|ControlMask,           XK_Right,  switchtag,      { .ui = SWITCHTAG_RIGHT  | SWITCHTAG_VIEW } },
+     { MODKEY|ControlMask,           XK_Left,   switchtag,      { .ui = SWITCHTAG_LEFT   | SWITCHTAG_VIEW } },
+
+     { MODKEY|Mod1Mask,              XK_Up,     switchtag,      { .ui = SWITCHTAG_UP     | SWITCHTAG_TAG | SWITCHTAG_VIEW } },
+     { MODKEY|Mod1Mask,              XK_Down,   switchtag,      { .ui = SWITCHTAG_DOWN   | SWITCHTAG_TAG | SWITCHTAG_VIEW } },
+     { MODKEY|Mod1Mask,              XK_Right,  switchtag,      { .ui = SWITCHTAG_RIGHT  | SWITCHTAG_TAG | SWITCHTAG_VIEW } },
+     { MODKEY|Mod1Mask,              XK_Left,   switchtag,      { .ui = SWITCHTAG_LEFT   | SWITCHTAG_TAG | SWITCHTAG_VIEW } },
+
+
+
 };
 
 /* button definitions */
