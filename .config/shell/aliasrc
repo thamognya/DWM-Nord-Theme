@@ -1,0 +1,15 @@
+#!/bin/sh
+
+alias cp="cp -iv" 
+alias mv="mv -iv" 
+alias rm="rm -vI" 
+alias bc="bc -ql" 
+alias mkd="mkdir -pv"
+alias neofetch='fastfetch'
+alias vim='nvim'
+alias vimcpp='exec $HOME/Documents/template/template-cpp.sh'
+alias ls='ls -al --color=auto'
+alias gitpushall='git remote | xargs -L1 git push --all'
+alias doas='sudo'
+alias torrent="nordpvn connect switzerland"
+alias nordvpn_c="nordpvn connect united_states los_angeles"
