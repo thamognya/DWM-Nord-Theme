@@ -1,6 +1,7 @@
 #!/bin/sh
 
 alias cp="cp -iv" 
+alias dc="cd" 
 alias mv="mv -iv" 
 alias rm="rm -vI" 
 alias bc="bc -ql" 
@@ -9,6 +10,13 @@ alias neofetch='fastfetch'
 alias vim='nvim'
 alias vimcpp='exec $HOME/Documents/template/template-cpp.sh'
 alias ls='ls -al --color=auto'
+alias sl='ls -al --color=auto'
+alias lss='ls -al --color=auto'
+alias lsl='ls -al --color=auto'
+alias lls='ls -al --color=auto'
+alias sll='ls -al --color=auto'
+alias sls='ls -al --color=auto'
+alias ssl='ls -al --color=auto'
 alias gitpushall='git remote | xargs -L1 git push --all'
 alias doas='sudo'
 alias torrent="nordpvn connect switzerland"
